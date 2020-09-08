@@ -30,3 +30,5 @@
 *.exe
 *.out
 *.app
+/Chapter2/GameDemo2/.vs/GameDemo2/v16/ipch/AutoPCH
+/Chapter2/GameDemo2/.vs/GameDemo2/v16
