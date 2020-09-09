@@ -54,6 +54,8 @@ private:
 	};
 	void setSize(const char* stageData, int size);
 
+	void drawCell(int x, int y, unsigned color) const;
+
 	int mWidth;
 	int mHeight;
 	Array2D<Object> mObjects;
@@ -105,6 +107,21 @@ void mainLoop() {
 		GameLib::cout << "Congratulation! you win." << GameLib::endl;
 		delete gState;
 		gState = nullptr;
+	}
+
+	if (input == 'q')
+	{
+		GameLib::Framework::instance().requestEnd();
+	}
+
+	if (GameLib::Framework::instance().isEndRequested())
+	{
+		if (gState)
+		{
+			delete gState;
+			gState = nullptr;
+			return;
+		}
 	}
 }
 
@@ -187,34 +204,51 @@ void State::setSize(const char* stageData, int size)
 	}
 }
 
+void State::drawCell(int x, int y, unsigned color) const
+{
+	unsigned* vram = GameLib::Framework::instance().videoMemory();
+	int windowWidth = GameLib::Framework::instance().width();
+
+	for (int i = 0; i < 16; i++)
+	{
+		for (int j = 0; j < 16; j++)
+		{
+			vram[(y * 16 + i) * windowWidth + (x * 16 + j)] = color;
+		}
+	}
+}
+
 void State::draw() const
 {
+	
 	for (int y = 0; y < mHeight; ++y)
 	{
 		for (int x = 0; x < mWidth; ++x)
 		{
 			Object o = mObjects(x, y);
 			bool goalFlag = mGoalFlags(x, y);
+			unsigned color;
 			if (goalFlag)
 			{
 				switch (o)
 				{
-				case OBJ_SPACE: GameLib::cout << '.'; break;
-				case OBJ_WALL: GameLib::cout << '#'; break;
-				case OBJ_BLOCK: GameLib::cout << 'O'; break;
-				case OBJ_MAN: GameLib::cout << 'P'; break;
+				case OBJ_SPACE: GameLib::cout << '.'; color = 0x0000ff; break;
+				case OBJ_WALL: GameLib::cout << '#'; color = 0xffffff; break;
+				case OBJ_BLOCK: GameLib::cout << 'O'; color = 0xff00ff; break;
+				case OBJ_MAN: GameLib::cout << 'P'; color = 0x00ffff; break;
 				}
 			}
 			else
 			{
 				switch (o)
 				{
-				case OBJ_SPACE: GameLib::cout << ' '; break;
-				case OBJ_WALL: GameLib::cout << '#'; break;
-				case OBJ_BLOCK: GameLib::cout << 'o'; break;
-				case OBJ_MAN: GameLib::cout << 'p'; break;
+				case OBJ_SPACE: GameLib::cout << ' '; color = 0x000000; break;
+				case OBJ_WALL: GameLib::cout << '#'; color = 0xffffff; break;
+				case OBJ_BLOCK: GameLib::cout << 'o'; color = 0xff0000; break;
+				case OBJ_MAN: GameLib::cout << 'p'; color = 0x00ff00; break;
 				}
 			}
+			drawCell(x, y, color);
 		}
 		GameLib::cout << GameLib::endl;
 	}
